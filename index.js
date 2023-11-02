@@ -4,17 +4,21 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-async function assetCount() {
-  const token = await axios.post(
+async function getToken() {
+  return axios.post(
     "https://lynkwell-dev.us.auth0.com/oauth/token",
     {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
+      client_id: process.env.AUTH0_CLIENT_ID,
+      client_secret: process.env.AUTH0_CLIENT_SECRET,
       audience: "https://api.dev.lynkwell.com",
       grant_type: "client_credentials",
     },
     { headers: { "content-type": "application/json" } }
   );
+}
+
+async function assetCount() {
+  const token = await getToken();
 
   const listAssetResponse = await axios.get(
     "https://api.dev.lynkwell.com/asset-management/v1/assets",
@@ -27,17 +31,7 @@ async function assetCount() {
 }
 
 async function remoteStart(stationID, idTag) {
-  const token = await axios.post(
-    "https://lynkwell-dev.us.auth0.com/oauth/token",
-    {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-      audience: "https://api.dev.lynkwell.com",
-      grant_type: "client_credentials",
-    },
-    { headers: { "content-type": "application/json" } }
-  );
-
+  const token = await getToken();
   await axios.post(
     "https://api.dev.lynkwell.com/ocpp/v1/remote-start-transaction",
     {
